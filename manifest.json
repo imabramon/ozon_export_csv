@@ -1,0 +1,12 @@
+{
+  "name": "Ozon Bank to CSV",
+  "description": "Extract all transactions from ozon bank to csv",
+  "version": "1.0",
+  "manifest_version": 3,
+  "icons": {},
+  "permissions": ["scripting", "activeTab"],
+  "background": {},
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

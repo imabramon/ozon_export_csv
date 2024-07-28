@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ozon Bank to CSV</title>
+    <link href="/page.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>Export csv</h1>
+    <button>Скачать</button>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Название</th>
+          <th>Дебет</th>
+          <th>Кредит</th>
+          <th>Итого</th>
+        </tr>
+      </thead>
+      <tbody class="table__body"></tbody>
+    </table>
+    <template id="tablerow">
+      <tr class="table_row">
+        <td class="table_row__date"></td>
+        <td class="table_row__name"></td>
+        <td class="table_row__debit"></td>
+        <td class="table_row__credit"></td>
+        <td class="table_row__amount"></td>
+      </tr>
+    </template>
+    <script src="/lib/jszip.min.js"></script>
+    <script src="/page.js"></script>
+  </body>
+</html>
