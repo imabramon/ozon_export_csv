@@ -35,7 +35,7 @@ async function getTransactions(start, end) {
     return [data, hasNext, next];
   }
   
-  const fetchTransactionsBeforeDate = async (date) => {
+  const fetchTransactionsAfterDate = async (date) => {
     // console.log('start')
     let fullData = [];
     let next = null;
@@ -75,33 +75,51 @@ async function getTransactions(start, end) {
   const startDate = new Date(start).setHours(0, 0, 0, 0)
   const endDate = new Date(end).setHours(0, 0, 0, 0)
 
-  const raw = await fetchTransactionsBeforeDate(endDate);
+  const raw = await fetchTransactionsAfterDate(startDate);
 
   const transactions = raw.filter(({time})=> {
     const date = new Date(time).setHours(0, 0, 0, 0)
-    return date >= endDate && date <= startDate
+    return date >= startDate && date <= endDate
   }).map(({time, purpose, accountAmount, categoryGroupName, merchantName})=>({
     date: time,
-    title: `${purpose} ${categoryGroupName} ${merchantName}`,
+    // title: `${purpose} ${categoryGroupName} ${merchantName}`,
     debit: accountAmount > 0 ? accountAmount/100 : 0,
     credit: accountAmount < 0 ? -accountAmount/100 : 0,
-    amount: accountAmount /100
+    amount: accountAmount /100,
+    purpose,
+    category: categoryGroupName,
+    name: merchantName
   }))
 
-  console.log(transactions)
+  //console.log(transactions)
 
   return transactions;
 }
 
-function action(e) {
-  e.preventDefault();
+function toggleError(msg){
+  alert(msg)
+}
 
+function action(e) {
   const startDateInput = document.getElementById("startDate");
   const startDate = startDateInput.value;
 
   const endDateInput = document.getElementById("endDate");
   const endDate = endDateInput.value;
 
+  if(!endDate || !startDate){
+    toggleError('Заполните обе даты')
+    return;
+  }
+
+  if(new Date(endDate).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)){
+    toggleError('Дату можно выбрать только позавчера и раньше')
+    return;
+  }
+
+  e.preventDefault();
+
+  
   chrome.tabs.query({ active: true }, function (tabs) {
     var tab = tabs[0];
     if (tab) {
@@ -132,7 +150,7 @@ function onResult(frames) {
 
   //   alert("onResult", transactionsData);
 
-  // openExportPage(transactionsData);
+  openExportPage(transactionsData);
 }
 
 function openExportPage(transactions) {

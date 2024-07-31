@@ -11,33 +11,39 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 });
 
 const dateAttrName = "data-date";
-const titleAttrName = "data-title";
+const nameAttrName = "data-name";
+const purposeAttrName = "data-purpose";
+const categoryAttrName = "data-category";
 const debitAttrName = "data-debit";
 const creditAttrName = "data-credit";
 const amountAttrName = "data-amount";
 
-function makeTableRow({ date, title, debit, credit, amount }) {
+function makeTableRow({ date, name, debit, credit, amount, purpose, category }) {
   const template = document.querySelector("#tablerow");
   const node = template.content.cloneNode(true);
 
   const dateNode = node.querySelector(".table_row__date");
-  const titleNode = node.querySelector(".table_row__name");
+  const nameNode = node.querySelector(".table_row__name");
+  const purposeNode = node.querySelector(".table_row__purpose");
+  const categoryNode = node.querySelector(".table_row__category");
   const debitNode = node.querySelector(".table_row__debit");
   const creditNode = node.querySelector(".table_row__credit");
   const amountNode = node.querySelector(".table_row__amount");
 
   dateNode.textContent = date;
-  titleNode.textContent = title;
+  nameNode.textContent = name;
+  purposeNode.textContent = purpose;
+  categoryNode.textContent = category;
   debitNode.textContent = debit;
   creditNode.textContent = credit;
   amountNode.textContent = amount;
 
-  console.log(node);
-
   const row = node.querySelector("tr");
 
   row.setAttribute(dateAttrName, date);
-  row.setAttribute(titleAttrName, title);
+  row.setAttribute(nameAttrName, name);
+  row.setAttribute(purposeAttrName, purpose);
+  row.setAttribute(categoryAttrName, category);
   row.setAttribute(debitAttrName, debit);
   row.setAttribute(creditAttrName, credit);
   row.setAttribute(amountAttrName, amount);
@@ -68,15 +74,17 @@ function makeCSV() {
 
   const rowData = Array.from(rowNodes).map((row) => {
     const date = row.getAttribute(dateAttrName);
-    const title = row.getAttribute(titleAttrName);
+    const name = row.getAttribute(nameAttrName);
+    const purpose = row.getAttribute(purposeAttrName);
+    const category = row.getAttribute(categoryAttrName);
     const debit = row.getAttribute(debitAttrName);
     const credit = row.getAttribute(creditAttrName);
     const amount = row.getAttribute(amountAttrName);
 
-    return [date, title, debit, credit, amount];
+    return [date, name, purpose, category, debit, credit, amount];
   });
 
-  const rows = [["Дата", "Название", "Дебет", "Кредит", "Итого"], ...rowData];
+  const rows = [["Дата", "Название", "Цель", "Категория", "Дебет", "Кредит", "Итого"], ...rowData];
 
   let csvContent =
     "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
