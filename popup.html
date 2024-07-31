@@ -2,22 +2,31 @@
 <html>
     <head>
         <title>Ozon Bank to CSV</title>
-        <link rel="stylesheet" type="text/css" href="popup.css"/>
         <meta charset="UTF-8">
+        <link
+            href="lib/bulma.css"
+            rel="stylesheet"
+            type="text/css"
+        />
     </head>
     <body>
-        <h1 class="title">Ozon Bank to CSV</h1>
-        <form class="form">
-            <label class="input">
-                <input id="startDate" class="input__input" type="date" placeholder="dd.mm.yyyy"/>
-                <span class="input__label">Дата начала:</span>
-            </label>
-            <label class="input">
-                <input id="endDate" class="input__input" type="date" placeholder="dd.mm.yyyy"/>
-                <span class="input__label">Дата конца</span>
-            </label>
-            <button class="button" type="submit">Выгрузить</button>
-        </form>
+        <div class="container">
+            <div class="section" >
+                <h1 class="title has-text-centered">Ozon Bank to CSV</h1>
+                <form class="form is-flex is-flex-direction-column is-justify-content-center">
+                    <label class="my-1">
+                        <span class="label has-text-centered">Дата начала:</span>
+                        <input id="startDate" class="input is-primary" type="date" placeholder="dd.mm.yyyy"/>
+                        
+                    </label>
+                    <label class="my-3">
+                        <span class="label has-text-centered">Дата конца</span>
+                        <input id="endDate" class="input is-primary" type="date" placeholder="dd.mm.yyyy"/>
+                    </label>
+                    <button class="button is-primary" type="submit">Выгрузить</button>
+                </form>
+            </div>
+        </div>
         <script src="popup.js"></script>
     </body>
 </html>
