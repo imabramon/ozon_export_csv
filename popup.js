@@ -1,49 +1,106 @@
 const button = document.querySelector(".button");
 
-function getTransactions() {
-  const transactions = Array.from({ length: 10 }).map((item) => ({
-    date: "09-11-2000",
-    title: "Название",
-    debit: 0,
-    credit: 100,
-    amount: -100,
-  }));
-
-  const body = {
-    cursors: { next: null, prev: null },
-    filter: { categories: [], effect: "EFFECT_UNKNOWN" },
-    perPage: 30,
-  };
-
-  const headers = new Headers();
-  headers.append(
-    "Content-Type",
-    "application/json"
-  )
-  headers.append(
-      'Accept',
-      'application/json'
-  )
+async function getTransactions(start, end) {
+  async function fetchTransactions(propNext = null) {
+    const body = {
+      cursors: { next: propNext, prev: null },
+      filter: { categories: [], effect: "EFFECT_UNKNOWN" },
+      perPage: 30,
+    };
   
-  ;(async () => {
-      const data = await fetch("https://finance.ozon.ru/api/v2/clientOperations", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(body),
-          credentials: "include",
-      })
-
-      const json = await data.json();
-      console.log('call', json);
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Accept", "application/json");
   
-  })();
+    const response = await fetch(
+      "https://finance.ozon.ru/api/v2/clientOperations",
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+        credentials: "include",
+      }
+    );
+  
+    if (response.status !== 200) {
+      throw new Error("Запрос не успешен");
+    }
+  
+    const {
+      items: data,
+      hasNextPage: hasNext,
+      cursors: { next },
+    } = await response.json();
+  
+    return [data, hasNext, next];
+  }
+  
+  const fetchTransactionsBeforeDate = async (date) => {
+    // console.log('start')
+    let fullData = [];
+    let next = null;
+  
+    while (true) {
+      // console.log('while')
+      const [data, hasNext, currentNext] = await fetchTransactions(next);
+  
+      fullData = [...fullData, ...data];
+  
+      if (!hasNext) {
+        break;
+      }
+  
+      const { time: lastTime } = data[data.length - 1];
+  
+      if (new Date(lastTime) <= date) {
+        break;
+      }
+  
+      next = currentNext;
+    }
+  
+    // console.log(fullData);
+  
+    return fullData;
+  }
+  
+  // const transactions = Array.from({ length: 10 }).map((item) => ({
+  //   date: "09-11-2000",
+  //   title: "Название",
+  //   debit: 0,
+  //   credit: 100,
+  //   amount: -100,
+  // }));
 
+  const startDate = new Date(start).setHours(0, 0, 0, 0)
+  const endDate = new Date(end).setHours(0, 0, 0, 0)
+
+  const raw = await fetchTransactionsBeforeDate(endDate);
+
+  const transactions = raw.filter(({time})=> {
+    const date = new Date(time).setHours(0, 0, 0, 0)
+    return date >= endDate && date <= startDate
+  }).map(({time, purpose, accountAmount, categoryGroupName, merchantName})=>({
+    date: time,
+    title: `${purpose} ${categoryGroupName} ${merchantName}`,
+    debit: accountAmount > 0 ? accountAmount/100 : 0,
+    credit: accountAmount < 0 ? -accountAmount/100 : 0,
+    amount: accountAmount /100
+  }))
+
+  console.log(transactions)
 
   return transactions;
 }
 
 function action(e) {
   e.preventDefault();
+
+  const startDateInput = document.getElementById("startDate");
+  const startDate = startDateInput.value;
+
+  const endDateInput = document.getElementById("endDate");
+  const endDate = endDateInput.value;
 
   chrome.tabs.query({ active: true }, function (tabs) {
     var tab = tabs[0];
@@ -52,6 +109,7 @@ function action(e) {
         .executeScript({
           target: { tabId: tab.id },
           func: getTransactions,
+          args: [startDate, endDate],
         })
         .then(onResult);
     } else {
