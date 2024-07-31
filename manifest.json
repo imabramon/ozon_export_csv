@@ -3,11 +3,15 @@
   "description": "Extract all transactions from ozon bank to csv",
   "version": "1.0",
   "manifest_version": 3,
-  "icons": {},
+  "icons": {
+    "16": "assets/ozon_logo@0.12x.png",
+    "32": "assets/ozon_logo@0.25x.png",
+    "64": "assets/ozon_logo@0.5x.png",
+    "128": "assets/ozon_logo.png"
+  },
   "permissions": ["scripting", "activeTab"],
   "background": {},
   "action": {
     "default_popup": "popup.html"
-  },
-  "host_permissions": ["https://cdn.tailwindcss.com"]
+  }
 }
